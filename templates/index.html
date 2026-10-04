@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Emergency Location Finder</title>
+
+    <!-- Leaflet CSS -->
+    <link
+        rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    >
+
+    <!-- Google Font -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
+    <link
+        rel="stylesheet"
+        href="{{ url_for('static', filename='style.css') }}"
+    >
+
+</head>
+
+
+<body>
+
+    <!-- Background emergency glow -->
+
+    <div class="background-glow glow-one"></div>
+    <div class="background-glow glow-two"></div>
+
+
+    <!-- NAVBAR -->
+
+    <nav class="navbar">
+
+        <div class="brand">
+
+            <div class="brand-icon">
+                +
+            </div>
+
+            <div>
+                <h2>Emergency<span>Finder</span></h2>
+                <p>FAST • LOCAL • RELIABLE</p>
+            </div>
+
+        </div>
+
+
+        <div class="nav-links">
+
+            <a href="#services">
+                Emergency Search
+            </a>
+
+            <a href="#services">
+                Service Categories
+            </a>
+
+            <a href="#map-section">
+                Map Information
+            </a>
+
+        </div>
+
+
+        <div class="status">
+
+            <span class="status-dot"></span>
+
+            OpenStreetMap
+
+        </div>
+
+    </nav>
+
+
+    <!-- HERO -->
+
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="emergency-badge">
+
+                <span>+</span>
+
+                EMERGENCY LOCATION FINDER
+
+            </div>
+
+
+            <h1>
+                Find help.
+                <span>Right when you need it.</span>
+            </h1>
+
+
+            <p>
+                Quickly discover nearby hospitals, police stations,
+                pharmacies, fire stations and clinics.
+            </p>
+
+
+            <!-- SEARCH -->
+
+            <div class="search-box">
+
+                <span class="search-icon">⌕</span>
+
+                <input
+                    type="text"
+                    id="locationInput"
+                    placeholder="Enter city, area or location..."
+                >
+
+                <button
+                    id="searchBtn"
+                    onclick="searchLocation()"
+                >
+                    Search
+                </button>
+
+            </div>
+
+
+            <button
+                class="location-btn"
+                onclick="useMyLocation()"
+            >
+
+                📍 Use My Current Location
+
+            </button>
+
+
+            <div id="locationStatus" class="location-status"></div>
+
+        </div>
+
+
+        <div class="hero-symbol">
+
+            <div class="pulse-circle">
+
+                <div class="cross-symbol">
+                    +
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- SERVICES -->
+
+    <section
+        class="services-section"
+        id="services"
+    >
+
+        <div class="section-heading">
+
+            <div>
+
+                <span class="small-title">
+                    QUICK ACCESS
+                </span>
+
+                <h2>
+                    What do you need?
+                </h2>
+
+            </div>
+
+            <span class="free-api">
+                ● Free OpenStreetMap Data
+            </span>
+
+        </div>
+
+
+        <div class="service-grid">
+
+
+            <button
+                class="service-card active"
+                onclick="selectCategory('hospital', this)"
+            >
+
+                <div class="service-icon hospital">
+                    🏥
+                </div>
+
+                <div class="service-info">
+
+                    <strong>Hospital</strong>
+
+                    <small>
+                        Emergency & medical care
+                    </small>
+
+                </div>
+
+                <span class="arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="service-card"
+                onclick="selectCategory('police', this)"
+            >
+
+                <div class="service-icon police">
+                    🛡️
+                </div>
+
+                <div class="service-info">
+
+                    <strong>Police</strong>
+
+                    <small>
+                        Safety & protection
+                    </small>
+
+                </div>
+
+                <span class="arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="service-card"
+                onclick="selectCategory('pharmacy', this)"
+            >
+
+                <div class="service-icon pharmacy">
+                    💊
+                </div>
+
+                <div class="service-info">
+
+                    <strong>Pharmacy</strong>
+
+                    <small>
+                        Medicines & essentials
+                    </small>
+
+                </div>
+
+                <span class="arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="service-card"
+                onclick="selectCategory('fire', this)"
+            >
+
+                <div class="service-icon fire">
+                    🚒
+                </div>
+
+                <div class="service-info">
+
+                    <strong>Fire Station</strong>
+
+                    <small>
+                        Fire & rescue
+                    </small>
+
+                </div>
+
+                <span class="arrow">
+                    →
+                </span>
+
+            </button>
+
+
+            <button
+                class="service-card"
+                onclick="selectCategory('clinic', this)"
+            >
+
+                <div class="service-icon clinic">
+                    🩺
+                </div>
+
+                <div class="service-info">
+
+                    <strong>Clinic</strong>
+
+                    <small>
+                        Nearby healthcare
+                    </small>
+
+                </div>
+
+                <span class="arrow">
+                    →
+                </span>
+
+            </button>
+
+        </div>
+
+    </section>
+
+
+    <!-- MAIN CONTENT -->
+
+    <section
+        class="main-section"
+        id="map-section"
+    >
+
+
+        <!-- RESULTS -->
+
+        <div class="results-panel">
+
+            <div class="panel-header">
+
+                <div>
+
+                    <span class="small-title">
+                        NEARBY
+                    </span>
+
+                    <h2 id="resultsTitle">
+                        Hospitals near you
+                    </h2>
+
+                </div>
+
+                <div
+                    class="result-count"
+                    id="resultCount"
+                >
+                    Ready
+                </div>
+
+            </div>
+
+
+            <div
+                class="results-list"
+                id="resultsList"
+            >
+
+                <div class="empty-state">
+
+                    <div class="empty-icon">
+                        ⌖
+                    </div>
+
+                    <h3>
+                        Search for a location
+                    </h3>
+
+                    <p>
+                        Enter a city or area above to
+                        discover nearby emergency services.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- MAP -->
+
+        <div class="map-panel">
+
+            <div class="map-label">
+
+                <span class="live-dot"></span>
+
+                LIVE MAP
+
+            </div>
+
+            <div id="map"></div>
+
+        </div>
+
+    </section>
+
+
+    <!-- FOOTER -->
+
+    <footer>
+
+        <div>
+            <strong>EmergencyFinder</strong>
+            <span> — Helping you find essential services faster.</span>
+        </div>
+
+        <div>
+            Powered by OpenStreetMap
+        </div>
+
+    </footer>
+
+
+    <!-- Leaflet JS -->
+
+    <script
+        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
+
+    <script
+        src="{{ url_for('static', filename='script.js') }}">
+    </script>
+
+</body>
+
+</html>
